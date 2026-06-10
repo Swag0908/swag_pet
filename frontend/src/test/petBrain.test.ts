@@ -13,7 +13,9 @@ const baseState: PetState = {
   settings: {
     alwaysOnTop: true,
     launchAtLogin: false,
-    soundEnabled: false
+    soundEnabled: false,
+    petScale: 1,
+    showStatusBar: false
   }
 };
 

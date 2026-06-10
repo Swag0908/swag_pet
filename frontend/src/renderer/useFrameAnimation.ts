@@ -1,23 +1,34 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AnimationName, PetManifest } from "../shared/types";
+import type { LoadedPet } from "./petAssets";
 
-export function useFrameAnimation(
+export function useAnimationFrameIndex(
   animation: AnimationName,
   manifest: PetManifest | null,
-  frameUrls: Record<AnimationName, string[]> | null,
+  loadedPet: LoadedPet | null,
   onAnimationEnd: () => void
-): string | null {
+): number {
   const [frameIndex, setFrameIndex] = useState(0);
 
   const spec = manifest?.animations[animation] ?? null;
-  const frames = useMemo(() => frameUrls?.[animation] ?? frameUrls?.idle ?? [], [animation, frameUrls]);
+  const frameCount = useMemo(() => {
+    if (!loadedPet) {
+      return 0;
+    }
+
+    if (loadedPet.source === "spritesheet") {
+      return (loadedPet.frameIndexes[animation] ?? loadedPet.frameIndexes.idle ?? []).length;
+    }
+
+    return (loadedPet.frameUrls[animation] ?? loadedPet.frameUrls.idle ?? []).length;
+  }, [animation, loadedPet]);
 
   useEffect(() => {
     setFrameIndex(0);
   }, [animation]);
 
   useEffect(() => {
-    if (!spec || frames.length === 0) {
+    if (!spec || frameCount === 0) {
       return;
     }
 
@@ -26,7 +37,7 @@ export function useFrameAnimation(
       setFrameIndex((currentIndex) => {
         const nextIndex = currentIndex + 1;
 
-        if (nextIndex >= frames.length) {
+        if (nextIndex >= frameCount) {
           if (!spec.loop) {
             window.clearInterval(timer);
             window.setTimeout(onAnimationEnd, 0);
@@ -42,7 +53,7 @@ export function useFrameAnimation(
     return () => {
       window.clearInterval(timer);
     };
-  }, [frames.length, onAnimationEnd, spec]);
+  }, [frameCount, onAnimationEnd, spec]);
 
-  return frames[frameIndex] ?? frames[0] ?? null;
+  return frameIndex;
 }

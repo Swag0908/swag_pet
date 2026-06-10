@@ -18,7 +18,9 @@ export function createDefaultPetState(position: Point, now = new Date()): PetSta
     settings: {
       alwaysOnTop: true,
       launchAtLogin: false,
-      soundEnabled: false
+      soundEnabled: false,
+      petScale: 1,
+      showStatusBar: false
     }
   };
 }
@@ -93,7 +95,9 @@ export function sanitizeState(rawState: Partial<PetState>, fallbackPosition: Poi
     settings: {
       alwaysOnTop: rawState.settings?.alwaysOnTop ?? true,
       launchAtLogin: rawState.settings?.launchAtLogin ?? false,
-      soundEnabled: rawState.settings?.soundEnabled ?? false
+      soundEnabled: rawState.settings?.soundEnabled ?? false,
+      petScale: clamp(finiteNumber(rawState.settings?.petScale, 1), 0.5, 2.5),
+      showStatusBar: rawState.settings?.showStatusBar ?? false
     }
   };
 }

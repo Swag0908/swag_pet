@@ -1,11 +1,17 @@
 import path from "node:path";
 import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, Tray } from "electron";
-import type { Point } from "../shared/types";
+import type { PetState, Point } from "../shared/types";
+import { clampPetScale } from "../shared/scale";
 import { StateStore } from "./stateStore";
 
-const windowSize = {
-  width: 280,
-  height: 300
+const baseWindowSize = {
+  width: 320,
+  height: 330
+};
+
+const minWindowSize = {
+  width: 340,
+  height: 320
 };
 
 let mainWindow: BrowserWindow | null = null;
@@ -16,8 +22,18 @@ let dragStart: { pointer: Point; windowPosition: Point } | null = null;
 function getDefaultWindowPosition(): Point {
   const { workArea } = screen.getPrimaryDisplay();
   return {
-    x: Math.round(workArea.x + workArea.width - windowSize.width - 32),
-    y: Math.round(workArea.y + workArea.height - windowSize.height - 72)
+    x: Math.round(workArea.x + workArea.width - baseWindowSize.width - 32),
+    y: Math.round(workArea.y + workArea.height - baseWindowSize.height - 72)
+  };
+}
+
+function getWindowSizeForState(state: PetState): { width: number; height: number } {
+  const scale = clampPetScale(state.settings.petScale);
+  const statusExtraHeight = state.settings.showStatusBar ? 34 : 0;
+
+  return {
+    width: Math.max(minWindowSize.width, Math.round(baseWindowSize.width * scale)),
+    height: Math.max(minWindowSize.height, Math.round(baseWindowSize.height * scale + statusExtraHeight))
   };
 }
 
@@ -25,6 +41,7 @@ function createWindow(): void {
   const defaultPosition = getDefaultWindowPosition();
   store = new StateStore(app.getPath("userData"), defaultPosition);
   const state = store.get();
+  const windowSize = getWindowSizeForState(state);
 
   mainWindow = new BrowserWindow({
     width: windowSize.width,
@@ -60,6 +77,16 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(path.join(__dirname, "../../dist-renderer/index.html"));
   }
+}
+
+function resizeWindowForState(state: PetState): void {
+  if (!mainWindow) {
+    return;
+  }
+
+  const { width, height } = getWindowSizeForState(state);
+  mainWindow.setSize(width, height, false);
+  saveWindowPosition();
 }
 
 function createTray(): void {
@@ -140,7 +167,12 @@ function registerIpc(): void {
     }
     const updatedState = store.update(patch);
     mainWindow?.setAlwaysOnTop(updatedState.settings.alwaysOnTop, "floating");
+    resizeWindowForState(updatedState);
     return updatedState;
+  });
+
+  ipcMain.handle("window:resize", (_event, state: PetState) => {
+    resizeWindowForState(state);
   });
 
   ipcMain.handle("window:drag-start", (_event, pointer: Point) => {

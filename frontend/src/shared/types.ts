@@ -9,6 +9,8 @@ export interface PetSettings {
   alwaysOnTop: boolean;
   launchAtLogin: boolean;
   soundEnabled: boolean;
+  petScale: number;
+  showStatusBar: boolean;
 }
 
 export interface PetState {
@@ -22,10 +24,26 @@ export interface PetState {
   settings: PetSettings;
 }
 
-export interface AnimationSpec {
+export interface FrameListAnimationSpec {
   fps: number;
   loop: boolean;
   frames: string[];
+}
+
+export interface SpriteSheetAnimationSpec {
+  fps: number;
+  loop: boolean;
+  frames: number[];
+}
+
+export type AnimationSpec = FrameListAnimationSpec | SpriteSheetAnimationSpec;
+
+export interface SpriteSheetSpec {
+  path: string;
+  frameWidth: number;
+  frameHeight: number;
+  columns: number;
+  rows: number;
 }
 
 export interface PetManifest {
@@ -33,6 +51,7 @@ export interface PetManifest {
   name: string;
   version: string;
   style: "pixel";
+  spritesheet?: SpriteSheetSpec;
   animations: Record<AnimationName, AnimationSpec>;
 }
 
@@ -52,6 +71,7 @@ export interface PetBrainResponse {
 export interface SwagPetApi {
   getState: () => Promise<PetState>;
   updateState: (patch: Partial<PetState>) => Promise<PetState>;
+  resizeWindow: (state: PetState) => Promise<void>;
   dragStart: (screenPoint: Point) => Promise<void>;
   dragMove: (screenPoint: Point) => Promise<void>;
   dragEnd: () => Promise<PetState>;

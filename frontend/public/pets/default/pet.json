@@ -3,31 +3,38 @@
   "name": "Swag Pet",
   "version": "1.0.0",
   "style": "pixel",
+  "spritesheet": {
+    "path": "spritesheet.png",
+    "frameWidth": 256,
+    "frameHeight": 256,
+    "columns": 4,
+    "rows": 5
+  },
   "animations": {
     "idle": {
       "fps": 3,
       "loop": true,
-      "frames": ["animations/idle/0.svg", "animations/idle/1.svg"]
+      "frames": [0, 1, 2, 3]
     },
     "walk": {
       "fps": 4,
       "loop": true,
-      "frames": ["animations/walk/0.svg", "animations/walk/1.svg"]
+      "frames": [4, 5, 6, 7]
     },
     "sleep": {
       "fps": 2,
       "loop": true,
-      "frames": ["animations/sleep/0.svg", "animations/sleep/1.svg"]
+      "frames": [8, 9, 10, 11]
     },
     "happy": {
       "fps": 6,
       "loop": false,
-      "frames": ["animations/happy/0.svg", "animations/happy/1.svg", "animations/happy/2.svg"]
+      "frames": [12, 13, 14, 15]
     },
     "tap": {
       "fps": 8,
       "loop": false,
-      "frames": ["animations/tap/0.svg", "animations/tap/1.svg", "animations/tap/2.svg"]
+      "frames": [16, 17, 18, 19]
     }
   }
 }

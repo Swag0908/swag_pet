@@ -27,15 +27,17 @@ button {
 
 .pet-shell {
   position: relative;
-  width: 280px;
-  height: 300px;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   user-select: none;
-  display: grid;
-  grid-template-rows: 70px 170px 42px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-items: center;
-  padding: 14px 18px;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px;
+  --pet-size: clamp(84px, calc(168px * var(--pet-scale, 1)), 420px);
 }
 
 .pet-shell.loading {
@@ -45,7 +47,7 @@ button {
 
 .speech-bubble {
   min-width: 112px;
-  max-width: 230px;
+  max-width: min(86vw, 240px);
   min-height: 34px;
   padding: 8px 12px;
   border: 2px solid #172033;
@@ -58,11 +60,12 @@ button {
   text-align: center;
   font-size: 13px;
   line-height: 1.25;
+  z-index: 2;
 }
 
 .pet-button {
-  width: 168px;
-  height: 168px;
+  width: var(--pet-size);
+  height: var(--pet-size);
   border: 0;
   padding: 0;
   margin: 0;
@@ -84,31 +87,39 @@ button {
 }
 
 .pet-frame {
-  width: 160px;
-  height: 160px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 8px 0 rgba(23, 32, 51, 0.16));
+  width: var(--pet-size);
+  height: var(--pet-size);
+  image-rendering: auto;
+  filter: drop-shadow(0 7px 0 rgba(23, 32, 51, 0.15));
   pointer-events: none;
 }
 
+.pet-sprite {
+  display: block;
+  background-repeat: no-repeat;
+}
+
 .pet-controls {
-  height: 34px;
-  min-width: 224px;
-  padding: 5px 7px;
+  min-height: 30px;
+  width: fit-content;
+  max-width: calc(100vw - 24px);
+  padding: 5px 8px;
   border: 2px solid #172033;
   background: rgba(248, 250, 252, 0.92);
   border-radius: 6px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 6px;
   box-shadow: 3px 3px 0 rgba(23, 32, 51, 0.15);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
+  z-index: 2;
 }
 
 .pet-controls button {
-  width: 24px;
+  min-width: 42px;
   height: 22px;
   border: 2px solid #172033;
   border-radius: 4px;
@@ -122,4 +133,56 @@ button {
 
 .pet-controls span {
   white-space: nowrap;
+  line-height: 1.2;
+}
+
+.scale-hint {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  padding: 5px 8px;
+  border: 2px solid #172033;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 3px 3px 0 rgba(23, 32, 51, 0.14);
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 3;
+}
+
+.pet-shell.scaling .pet-button {
+  outline: 2px dashed rgba(45, 106, 255, 0.8);
+  outline-offset: 6px;
+  border-radius: 10px;
+}
+
+.pet-context-menu {
+  position: fixed;
+  min-width: 142px;
+  padding: 6px;
+  border: 2px solid #172033;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 5px 5px 0 rgba(23, 32, 51, 0.18);
+  display: grid;
+  gap: 4px;
+  z-index: 10;
+}
+
+.pet-context-menu button {
+  width: 100%;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #172033;
+  padding: 7px 8px;
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.pet-context-menu button:hover,
+.pet-context-menu button:focus-visible {
+  background: #fef3c7;
+  outline: none;
 }

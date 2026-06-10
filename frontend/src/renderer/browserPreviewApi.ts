@@ -1,4 +1,5 @@
 import type { PetState, Point, SwagPetApi } from "../shared/types";
+import { clampPetScale } from "../shared/scale";
 
 const storageKey = "swag-pet-preview-state";
 
@@ -12,7 +13,7 @@ export function installBrowserPreviewApi(): void {
   const api: SwagPetApi = {
     getState: async () => structuredClone(state),
     updateState: async (patch: Partial<PetState>) => {
-      state = {
+      state = sanitizePreviewState({
         ...state,
         ...patch,
         settings: {
@@ -23,10 +24,11 @@ export function installBrowserPreviewApi(): void {
           ...state.position,
           ...patch.position
         }
-      };
+      });
       savePreviewState(state);
       return structuredClone(state);
     },
+    resizeWindow: async () => undefined,
     dragStart: async () => undefined,
     dragMove: async () => undefined,
     dragEnd: async () => structuredClone(state),
@@ -53,15 +55,30 @@ function loadPreviewState(): PetState {
       return fallback;
     }
 
-    return {
+    return sanitizePreviewState({
       ...fallback,
-      ...(JSON.parse(raw) as Partial<PetState>)
-    };
+      ...(JSON.parse(raw) as Partial<PetState>),
+      settings: {
+        ...fallback.settings,
+        ...(JSON.parse(raw) as Partial<PetState>).settings
+      }
+    });
   } catch (error) {
     console.warn("Failed to load browser preview state, falling back to defaults.", error);
     savePreviewState(fallback);
     return fallback;
   }
+}
+
+function sanitizePreviewState(state: PetState): PetState {
+  return {
+    ...state,
+    settings: {
+      ...state.settings,
+      petScale: clampPetScale(state.settings.petScale),
+      showStatusBar: state.settings.showStatusBar ?? false
+    }
+  };
 }
 
 function savePreviewState(state: PetState): void {
@@ -82,7 +99,9 @@ function createPreviewState(): PetState {
     settings: {
       alwaysOnTop: true,
       launchAtLogin: false,
-      soundEnabled: false
+      soundEnabled: false,
+      petScale: 1,
+      showStatusBar: false
     }
   };
 }

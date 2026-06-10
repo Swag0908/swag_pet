@@ -41,4 +41,24 @@ describe("StateStore", () => {
     expect(state.energy).toBe(0);
     expect(state.affinity).toBe(1);
   });
+
+  it("adds new settings defaults for older state files", () => {
+    const state = sanitizeState({
+      petId: "default-pet",
+      position: { x: 10, y: 20 },
+      mood: 80,
+      energy: 70,
+      affinity: 2,
+      createdAt: "2026-06-10T00:00:00.000Z",
+      lastInteractionAt: "2026-06-10T00:00:00.000Z",
+      settings: {
+        alwaysOnTop: true,
+        launchAtLogin: false,
+        soundEnabled: false
+      }
+    } as never);
+
+    expect(state.settings.petScale).toBe(1);
+    expect(state.settings.showStatusBar).toBe(false);
+  });
 });
